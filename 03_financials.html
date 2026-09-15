@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Trends | Deep-Tech Ecosystem</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: #0a0e1a;
+    color: #e0e6ed;
+    line-height: 1.6;
+}
+.header {
+    background: linear-gradient(135deg, #0f1729 0%, #1a1f3a 100%);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #818cf8, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+}
+.nav { display: flex; gap: 8px; }
+.nav a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+.nav a:hover, .nav a.active {
+    color: #c084fc;
+    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(99, 102, 241, 0.3);
+}
+.container { padding: 32px 40px; max-width: 1600px; margin: 0 auto; }
+.grid { display: grid; gap: 24px; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.card {
+    background: linear-gradient(135deg, #111827 0%, #0f172a 100%);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    border-radius: 12px;
+    padding: 28px;
+    overflow: visible;
+    transition: border-color 0.3s;
+}
+.card:hover { border-color: rgba(99, 102, 241, 0.4); }
+.card h3 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #64748b;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+.metric-value {
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #818cf8, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.metric-label { font-size: 13px; color: #64748b; margin-top: 4px; }
+.chart-container { width: 100%; height: 420px; }
+.chart-lg { height: 520px; }
+.chart-xl { height: 620px; }
+.subtitle {
+    font-size: 14px;
+    color: #94a3b8;
+    margin-bottom: 24px;
+}
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px 14px; text-align: left; font-size: 13px; }
+th { color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; font-size: 11px; border-bottom: 1px solid rgba(99, 102, 241, 0.2); }
+td { border-bottom: 1px solid rgba(99, 102, 241, 0.08); color: #c9d1d9; }
+tr:hover td { background: rgba(99, 102, 241, 0.05); }
+@media (max-width: 1200px) { .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 768px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } .container { padding: 16px; } }
+</style>
+
+</head>
+<body>
+<div class="header">
+    <h1>Deep-Tech & Quantum Ecosystem</h1>
+    <nav class="nav"><a href="01_dashboard.html">Dashboard</a><a href="02_funding.html">Funding</a><a href="03_financials.html" class="active">Financials</a><a href="04_network.html">Network</a><a href="05_investors.html">Investors</a></nav>
+</div>
+
+<div class="container">
+    <p class="subtitle">Financial performance metrics across the ecosystem (all values normalized to USD)</p>
+
+    <div class="card" style="margin-bottom: 24px;">
+        <h3>Revenue Trends by Sector (2019-2025)</h3>
+        <div id="revSector" class="chart-lg"></div>
+    </div>
+
+    <div class="grid grid-2" style="margin-bottom: 24px;">
+        <div class="card">
+            <h3>Ecosystem Revenue vs R&D Spend</h3>
+            <div id="revRnd" class="chart-container"></div>
+        </div>
+        <div class="card">
+            <h3>Total Headcount Across Ecosystem</h3>
+            <div id="headcount" class="chart-container"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Top 15 Companies by Revenue (2025, USD)</h3>
+        <div id="topRev" class="chart-lg"></div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script>
+// Revenue by sector
+(function() {
+    const chart = echarts.init(document.getElementById('revSector'));
+    chart.setOption({
+        tooltip: { trigger: 'axis', valueFormatter: v => v !== null ? '$' + v + 'M' : 'N/A' },
+        legend: { bottom: 0, textStyle: { color: '#94a3b8', fontSize: 11 } },
+        grid: { left: 60, right: 30, top: 40, bottom: 60 },
+        xAxis: { type: 'category', data: [2019, 2020, 2021, 2022, 2023, 2024, 2025], axisLabel: { color: '#64748b' }, axisLine: { lineStyle: { color: 'rgba(99,102,241,0.2)' } } },
+        yAxis: { type: 'value', name: '$ Million', nameTextStyle: { color: '#94a3b8', padding: [0, 0, 10, 0] }, axisLabel: { color: '#64748b' }, splitLine: { lineStyle: { color: 'rgba(99,102,241,0.1)' } } },
+        series: [{"name": "AI Infrastructure", "type": "line", "data": [30.4, 77.8, 118.6, 144.3, 198.9, 383.4, 449.2], "smooth": true, "symbol": "circle", "symbolSize": 6, "lineStyle": {"width": 2.5}, "itemStyle": {"color": "#38bdf8"}}, {"name": "Photonics", "type": "line", "data": [58.0, 105.3, 136.9, 375.1, 491.5, 834.5, 1332.6], "smooth": true, "symbol": "circle", "symbolSize": 6, "lineStyle": {"width": 2.5}, "itemStyle": {"color": "#34d399"}}, {"name": "Quantum Communication", "type": "line", "data": [65.7, 87.4, 147.3, 248.6, 348.4, 385.1, 979.9], "smooth": true, "symbol": "circle", "symbolSize": 6, "lineStyle": {"width": 2.5}, "itemStyle": {"color": "#f472b6"}}, {"name": "Quantum Computing", "type": "line", "data": [27.4, 43.2, 74.9, 147.5, 257.2, 286.5, 628.7], "smooth": true, "symbol": "circle", "symbolSize": 6, "lineStyle": {"width": 2.5}, "itemStyle": {"color": "#818cf8"}}, {"name": "Quantum Sensing", "type": "line", "data": [46.2, 104.2, 123.0, 160.3, 291.7, 469.1, 773.8], "smooth": true, "symbol": "circle", "symbolSize": 6, "lineStyle": {"width": 2.5}, "itemStyle": {"color": "#fb923c"}}, {"name": "Quantum Software", "type": "line", "data": [100.0, 89.7, 272.1, 291.0, 395.4, 1027.1, 1499.2], "smooth": true, "symbol": "circle", "symbolSize": 6, "lineStyle": {"width": 2.5}, "itemStyle": {"color": "#c084fc"}}]
+    });
+    window.addEventListener('resize', () => chart.resize());
+})();
+
+// Revenue vs R&D
+(function() {
+    const chart = echarts.init(document.getElementById('revRnd'));
+    chart.setOption({
+        tooltip: { trigger: 'axis', valueFormatter: v => '$' + v + 'M' },
+        legend: { bottom: 0, textStyle: { color: '#94a3b8' } },
+        grid: { left: 60, right: 30, top: 45, bottom: 55 },
+        xAxis: { type: 'category', data: [2019, 2020, 2021, 2022, 2023, 2024, 2025], axisLabel: { color: '#64748b' }, axisLine: { lineStyle: { color: 'rgba(99,102,241,0.2)' } } },
+        yAxis: { type: 'value', name: '$ Million', nameTextStyle: { color: '#94a3b8', padding: [0, 0, 10, 0] }, axisLabel: { color: '#64748b' }, splitLine: { lineStyle: { color: 'rgba(99,102,241,0.1)' } } },
+        series: [
+            { name: 'Revenue', type: 'bar', data: [327.6, 507.6, 872.8, 1366.9, 1983.0, 3385.8, 5663.5], itemStyle: { color: '#818cf8', borderRadius: [4,4,0,0] }, barWidth: 20 },
+            { name: 'R&D Spend', type: 'bar', data: [429.4, 394.4, 702.9, 1355.3, 1811.0, 3185.0, 5413.2], itemStyle: { color: '#c084fc', borderRadius: [4,4,0,0] }, barWidth: 20 }
+        ]
+    });
+    window.addEventListener('resize', () => chart.resize());
+})();
+
+// Headcount
+(function() {
+    const chart = echarts.init(document.getElementById('headcount'));
+    const years = [2019, 2020, 2021, 2022, 2023, 2024, 2025];
+    const hc = [2064, 2198, 2454, 3247, 3380, 3603, 3204];
+    chart.setOption({
+        tooltip: { trigger: 'axis' },
+        grid: { left: 70, right: 30, top: 45, bottom: 40 },
+        xAxis: { type: 'category', data: years, axisLabel: { color: '#64748b' }, axisLine: { lineStyle: { color: 'rgba(99,102,241,0.2)' } } },
+        yAxis: { type: 'value', name: 'Headcount', nameTextStyle: { color: '#94a3b8', padding: [0, 0, 10, 0] }, axisLabel: { color: '#64748b' }, splitLine: { lineStyle: { color: 'rgba(99,102,241,0.1)' } } },
+        series: [{
+            type: 'line', data: hc, smooth: true,
+            areaStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1, [{offset:0,color:'rgba(129,140,248,0.4)'},{offset:1,color:'rgba(129,140,248,0.02)'}]) },
+            lineStyle: { color: '#818cf8', width: 3 },
+            itemStyle: { color: '#818cf8' },
+            symbol: 'circle', symbolSize: 8
+        }]
+    });
+    window.addEventListener('resize', () => chart.resize());
+})();
+
+// Top Revenue 2025
+(function() {
+    const chart = echarts.init(document.getElementById('topRev'));
+    const data = [{"name": "Vector Technologies", "sector": "Quantum Software", "revenue": 447.9, "ebitda": -251.17}, {"name": "VectorComputing Works", "sector": "Photonics", "revenue": 334.21, "ebitda": null}, {"name": "Orbital Quantum", "sector": "Quantum Software", "revenue": 315.26, "ebitda": -775.28}, {"name": "Aster Computing", "sector": "Photonics", "revenue": 303.51, "ebitda": null}, {"name": "QuantaSystems Instruments", "sector": "Quantum Communication", "revenue": 268.15, "ebitda": -669.32}, {"name": "RydbergRobotics Technologies", "sector": "Quantum Communication", "revenue": 244.19, "ebitda": -67.8}, {"name": "EntangleMachines Labs", "sector": "Quantum Software", "revenue": 185.51, "ebitda": -58.3}, {"name": "  Anyon Robotics ", "sector": "Photonics", "revenue": 177.74, "ebitda": -341.23}, {"name": "NovaComputing Networks", "sector": "Quantum Software", "revenue": 157.76, "ebitda": -104.69}, {"name": "Meridian AI", "sector": "Quantum Sensing", "revenue": 129.69, "ebitda": -286.55}, {"name": "Cryo Machines", "sector": "Photonics", "revenue": 122.28, "ebitda": null}, {"name": "AuroraInstruments AI", "sector": "AI Infrastructure", "revenue": 120.32, "ebitda": -29.19}, {"name": "CardinalAI Photonics", "sector": "Quantum Communication", "revenue": 118.8, "ebitda": -206.95}, {"name": "IonComputing Labs", "sector": "Quantum Communication", "revenue": 109.16, "ebitda": -206.81}, {"name": "Qu Instruments", "sector": "Quantum Sensing", "revenue": 108.89, "ebitda": -79.62}];
+    const sectorColors = {"Quantum Computing": "#818cf8", "Quantum Software": "#c084fc", "Quantum Communication": "#f472b6", "Quantum Sensing": "#fb923c", "Photonics": "#34d399", "AI Infrastructure": "#38bdf8"};
+    chart.setOption({
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p) {
+            const d = data[data.length - 1 - p[0].dataIndex];
+            let s = '<b>' + d.name + '</b> (' + d.sector + ')<br>Revenue: $' + d.revenue.toFixed(1) + 'M';
+            if (d.ebitda !== null) s += '<br>EBITDA: $' + d.ebitda.toFixed(1) + 'M';
+            return s;
+        } },
+        grid: { left: 180, right: 40, top: 10, bottom: 30 },
+        xAxis: { type: 'value', name: '$ Million', nameTextStyle: { color: '#64748b' }, axisLabel: { color: '#64748b' }, splitLine: { lineStyle: { color: 'rgba(99,102,241,0.1)' } } },
+        yAxis: { type: 'category', data: data.map(d => d.name).reverse(), axisLabel: { color: '#c9d1d9', fontSize: 12 }, axisLine: { lineStyle: { color: 'rgba(99,102,241,0.2)' } } },
+        series: [{ type: 'bar', data: data.map(d => ({ value: Math.round(d.revenue*10)/10, itemStyle: { color: sectorColors[d.sector] || '#64748b' } })).reverse(), barWidth: 20, itemStyle: { borderRadius: [0,4,4,0] } }]
+    });
+    window.addEventListener('resize', () => chart.resize());
+})();
+</script>
+
+</body>
+</html>

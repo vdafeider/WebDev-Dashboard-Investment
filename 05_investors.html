@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investor Analysis | Deep-Tech Ecosystem</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: #0a0e1a;
+    color: #e0e6ed;
+    line-height: 1.6;
+}
+.header {
+    background: linear-gradient(135deg, #0f1729 0%, #1a1f3a 100%);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #818cf8, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+}
+.nav { display: flex; gap: 8px; }
+.nav a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+.nav a:hover, .nav a.active {
+    color: #c084fc;
+    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(99, 102, 241, 0.3);
+}
+.container { padding: 32px 40px; max-width: 1600px; margin: 0 auto; }
+.grid { display: grid; gap: 24px; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.card {
+    background: linear-gradient(135deg, #111827 0%, #0f172a 100%);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    border-radius: 12px;
+    padding: 28px;
+    overflow: visible;
+    transition: border-color 0.3s;
+}
+.card:hover { border-color: rgba(99, 102, 241, 0.4); }
+.card h3 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #64748b;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+.metric-value {
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #818cf8, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.metric-label { font-size: 13px; color: #64748b; margin-top: 4px; }
+.chart-container { width: 100%; height: 420px; }
+.chart-lg { height: 520px; }
+.chart-xl { height: 620px; }
+.subtitle {
+    font-size: 14px;
+    color: #94a3b8;
+    margin-bottom: 24px;
+}
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px 14px; text-align: left; font-size: 13px; }
+th { color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; font-size: 11px; border-bottom: 1px solid rgba(99, 102, 241, 0.2); }
+td { border-bottom: 1px solid rgba(99, 102, 241, 0.08); color: #c9d1d9; }
+tr:hover td { background: rgba(99, 102, 241, 0.05); }
+@media (max-width: 1200px) { .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 768px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } .container { padding: 16px; } }
+</style>
+
+</head>
+<body>
+<div class="header">
+    <h1>Deep-Tech & Quantum Ecosystem</h1>
+    <nav class="nav"><a href="01_dashboard.html">Dashboard</a><a href="02_funding.html">Funding</a><a href="03_financials.html">Financials</a><a href="04_network.html">Network</a><a href="05_investors.html" class="active">Investors</a></nav>
+</div>
+
+<div class="container">
+    <p class="subtitle">Investor landscape: 52 investors, 9 types, across 17 countries</p>
+
+    <div class="grid grid-2" style="margin-bottom: 24px;">
+        <div class="card">
+            <h3>Investor Type Distribution</h3>
+            <div id="invType" class="chart-container"></div>
+        </div>
+        <div class="card">
+            <h3>Investors by Country</h3>
+            <div id="invCountry" class="chart-container"></div>
+        </div>
+    </div>
+
+    <div class="grid grid-2" style="margin-bottom: 24px;">
+        <div class="card" style="overflow-x:auto;">
+            <h3>Top 20 Most Active Investors</h3>
+            <table>
+                <thead><tr><th>Investor</th><th>Type</th><th style="text-align:right;">Deals</th><th style="text-align:right;">Est. Total</th></tr></thead>
+                <tbody><tr>
+        <td style="font-weight:600;">Cathedral Ventures</td>
+        <td><span class="badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44;">Family Office</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">137</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$455.2M</td>
+    </tr><tr>
+        <td style="font-weight:600;">Frontier Tech Ventures</td>
+        <td><span class="badge" style="background:#f472b622;color:#f472b6;border:1px solid #f472b644;">Venture Capital</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">63</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$148.0M</td>
+    </tr><tr>
+        <td style="font-weight:600;">Cambridge Angels Equity</td>
+        <td><span class="badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44;">Family Office</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">54</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$190.7M</td>
+    </tr><tr>
+        <td style="font-weight:600;">Tiger Grove Capital</td>
+        <td><span class="badge" style="background:#94a3b822;color:#94a3b8;border:1px solid #94a3b844;">Government Grant Program</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">51</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$104.4M</td>
+    </tr><tr>
+        <td style="font-weight:600;">Duchy Capital Partners</td>
+        <td><span class="badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44;">Family Office</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">36</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$183.2M</td>
+    </tr><tr>
+        <td style="font-weight:600;">Dovetail Capital</td>
+        <td><span class="badge" style="background:#f472b622;color:#f472b6;border:1px solid #f472b644;">Venture Capital</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">27</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$45.2M</td>
+    </tr><tr>
+        <td style="font-weight:600;">Redshift Fund</td>
+        <td><span class="badge" style="background:#f472b622;color:#f472b6;border:1px solid #f472b644;">Venture Capital</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">22</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$55.1M</td>
+    </tr><tr>
+        <td style="font-weight:600;">Hoxton Capital Partners</td>
+        <td><span class="badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44;">Angel</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">17</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$43.3M</td>
+    </tr><tr>
+        <td style="font-weight:600;">Baltic Capital Partners</td>
+        <td><span class="badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44;">Angel</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">15</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$35.9M</td>
+    </tr><tr>
+        <td style="font-weight:600;">Granite Bay Capital</td>
+        <td><span class="badge" style="background:#86efac22;color:#86efac;border:1px solid #86efac44;">Accelerator</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">15</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$33.0M</td>
+    </tr><tr>
+        <td style="font-weight:600;">Quantum Wave Fund</td>
+        <td><span class="badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44;">Angel</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">14</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$49.1M</td>
+    </tr><tr>
+        <td style="font-weight:600;">Pioneer Ventures</td>
+        <td><span class="badge" style="background:#86efac22;color:#86efac;border:1px solid #86efac44;">Accelerator</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">13</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$29.8M</td>
+    </tr><tr>
+        <td style="font-weight:600;">In-Q Equity</td>
+        <td><span class="badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44;">Angel</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">12</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$16.0M</td>
+    </tr><tr>
+        <td style="font-weight:600;">Serpentine Ventures</td>
+        <td><span class="badge" style="background:#f472b622;color:#f472b6;border:1px solid #f472b644;">Venture Capital</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">10</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$32.0M</td>
+    </tr><tr>
+        <td style="font-weight:600;">Lightspeed Delta Investments</td>
+        <td><span class="badge" style="background:#fca5a522;color:#fca5a5;border:1px solid #fca5a544;">Corporate VC</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">10</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$51.0M</td>
+    </tr><tr>
+        <td style="font-weight:600;">Terra Nova Equity</td>
+        <td><span class="badge" style="background:#f472b622;color:#f472b6;border:1px solid #f472b644;">Venture Capital</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">9</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$20.3M</td>
+    </tr><tr>
+        <td style="font-weight:600;">Meridian Growth Group</td>
+        <td><span class="badge" style="background:#67e8f922;color:#67e8f9;border:1px solid #67e8f944;">University Fund</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">9</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$28.1M</td>
+    </tr><tr>
+        <td style="font-weight:600;">Emirates Future Ventures</td>
+        <td><span class="badge" style="background:#f472b622;color:#f472b6;border:1px solid #f472b644;">Venture Capital</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">9</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$18.8M</td>
+    </tr><tr>
+        <td style="font-weight:600;">Deep Horizon Group</td>
+        <td><span class="badge" style="background:#67e8f922;color:#67e8f9;border:1px solid #67e8f944;">University Fund</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">8</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$31.4M</td>
+    </tr><tr>
+        <td style="font-weight:600;">Founders Ventures</td>
+        <td><span class="badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44;">Angel</span></td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">8</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">$33.0M</td>
+    </tr></tbody>
+            </table>
+        </div>
+        <div class="card">
+            <h3>Co-Investment Heatmap</h3>
+            <div id="heatmap" class="chart-container chart-lg"></div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script>
+// Investor Type
+(function() {
+    const chart = echarts.init(document.getElementById('invType'));
+    const colors = ['#f472b6','#fb923c','#fbbf24','#a78bfa','#67e8f9','#94a3b8','#86efac','#fca5a5','#d4d4d8'];
+    chart.setOption({
+        tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+        legend: { bottom: 5, textStyle: { color: '#94a3b8', fontSize: 11 } },
+        series: [{
+            type: 'pie', radius: ['35%', '65%'], center: ['50%', '42%'],
+            itemStyle: { borderRadius: 6, borderColor: '#0a0e1a', borderWidth: 3 },
+            label: { show: false },
+            data: [{"name": "Angel", "value": 14}, {"name": "Venture Capital", "value": 13}, {"name": "University Fund", "value": 5}, {"name": "Family Office", "value": 5}, {"name": "Government Grant Program", "value": 4}, {"name": "Private Equity", "value": 4}, {"name": "Accelerator", "value": 4}, {"name": "Corporate VC", "value": 2}, {"name": "Sovereign Wealth Fund", "value": 1}].map((d,i) => ({ ...d, itemStyle: { color: colors[i % colors.length] } }))
+        }]
+    });
+    window.addEventListener('resize', () => chart.resize());
+})();
+
+// Investor Country
+(function() {
+    const chart = echarts.init(document.getElementById('invCountry'));
+    const data = [{"name": "Singapore", "value": 8}, {"name": "United States", "value": 5}, {"name": "Germany", "value": 4}, {"name": "France", "value": 4}, {"name": "Israel", "value": 4}, {"name": "United Arab Emirates", "value": 4}, {"name": "United Kingdom", "value": 3}, {"name": "India", "value": 3}, {"name": "Finland", "value": 3}, {"name": "Switzerland", "value": 2}, {"name": "Sweden", "value": 2}, {"name": "South Korea", "value": 2}];
+    chart.setOption({
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        grid: { left: 170, right: 30, top: 10, bottom: 30 },
+        xAxis: { type: 'value', axisLabel: { color: '#64748b' }, splitLine: { lineStyle: { color: 'rgba(99,102,241,0.1)' } } },
+        yAxis: { type: 'category', data: data.map(d => d.name).reverse(), axisLabel: { color: '#c9d1d9', fontSize: 12 }, axisLine: { lineStyle: { color: 'rgba(99,102,241,0.2)' } } },
+        series: [{ type: 'bar', data: data.map(d => d.value).reverse(), itemStyle: { color: new echarts.graphic.LinearGradient(0,0,1,0, [{offset:0,color:'#f472b6'},{offset:1,color:'#c084fc'}]), borderRadius: [0,4,4,0] }, barWidth: 16 }]
+    });
+    window.addEventListener('resize', () => chart.resize());
+})();
+
+// Co-investment Heatmap
+(function() {
+    const chart = echarts.init(document.getElementById('heatmap'));
+    const names = ["Emirates Future Vent", "Nordic Photon Invest", "Samsung Catalyst II ", "Dovetail Capital", "Duchy Capital Partne", "Cambridge Angels Equ", "Granite Bay Capital", "Pioneer Ventures", "Cathedral Ventures", "Tiger Grove Capital", "In-Q Equity", "Redshift Fund", "Serpentine Ventures", "Baltic Capital Partn", "Frontier Tech Ventur", "Hoxton Capital Partn", "Quantum Wave Fund"];
+    const data = [[8, 9, 33], [9, 8, 33], [5, 8, 32], [8, 5, 32], [8, 14, 29], [14, 8, 29], [4, 8, 18], [8, 4, 18], [3, 8, 15], [8, 3, 15], [5, 9, 11], [9, 5, 11], [5, 14, 10], [14, 5, 10], [8, 15, 10], [15, 8, 10], [9, 14, 10], [14, 9, 10], [8, 16, 9], [16, 8, 9], [8, 11, 9], [11, 8, 9], [4, 5, 8], [5, 4, 8], [4, 14, 7], [14, 4, 7], [8, 10, 7], [10, 8, 7], [7, 8, 6], [8, 7, 6], [0, 8, 6], [8, 0, 6], [3, 9, 6], [9, 3, 6], [6, 8, 6], [8, 6, 6], [14, 16, 5], [16, 14, 5], [3, 5, 5], [5, 3, 5], [1, 14, 5], [14, 1, 5], [7, 14, 5], [14, 7, 5], [3, 14, 5], [14, 3, 5], [5, 11, 5], [11, 5, 5], [5, 13, 4], [13, 5, 4], [8, 12, 4], [12, 8, 4], [14, 15, 4], [15, 14, 4], [5, 16, 4], [16, 5, 4], [8, 13, 4], [13, 8, 4], [2, 8, 4], [8, 2, 4]];
+    chart.setOption({
+        tooltip: { formatter: function(p) { return names[p.data[0]] + ' & ' + names[p.data[1]] + ': ' + p.data[2] + ' co-investments'; } },
+        grid: { left: 160, right: 20, top: 10, bottom: 160 },
+        xAxis: { type: 'category', data: names, axisLabel: { rotate: 45, color: '#94a3b8', fontSize: 10 }, axisLine: { lineStyle: { color: 'rgba(99,102,241,0.2)' } } },
+        yAxis: { type: 'category', data: names, axisLabel: { color: '#94a3b8', fontSize: 10 }, axisLine: { lineStyle: { color: 'rgba(99,102,241,0.2)' } } },
+        visualMap: { min: 1, max: 33, calculable: false, orient: 'horizontal', left: 'center', bottom: 5,
+            inRange: { color: ['#1e1b4b', '#4338ca', '#818cf8', '#c084fc', '#f472b6'] },
+            textStyle: { color: '#64748b' }
+        },
+        series: [{ type: 'heatmap', data: data, label: { show: true, color: '#e0e6ed', fontSize: 10 },
+            itemStyle: { borderWidth: 1, borderColor: '#0a0e1a' } }]
+    });
+    window.addEventListener('resize', () => chart.resize());
+})();
+</script>
+
+</body>
+</html>

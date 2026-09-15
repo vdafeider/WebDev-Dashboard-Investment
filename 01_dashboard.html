@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard | Deep-Tech Ecosystem</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: #0a0e1a;
+    color: #e0e6ed;
+    line-height: 1.6;
+}
+.header {
+    background: linear-gradient(135deg, #0f1729 0%, #1a1f3a 100%);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #818cf8, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+}
+.nav { display: flex; gap: 8px; }
+.nav a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+.nav a:hover, .nav a.active {
+    color: #c084fc;
+    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(99, 102, 241, 0.3);
+}
+.container { padding: 32px 40px; max-width: 1600px; margin: 0 auto; }
+.grid { display: grid; gap: 24px; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.card {
+    background: linear-gradient(135deg, #111827 0%, #0f172a 100%);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    border-radius: 12px;
+    padding: 28px;
+    overflow: visible;
+    transition: border-color 0.3s;
+}
+.card:hover { border-color: rgba(99, 102, 241, 0.4); }
+.card h3 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #64748b;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+.metric-value {
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #818cf8, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.metric-label { font-size: 13px; color: #64748b; margin-top: 4px; }
+.chart-container { width: 100%; height: 420px; }
+.chart-lg { height: 520px; }
+.chart-xl { height: 620px; }
+.subtitle {
+    font-size: 14px;
+    color: #94a3b8;
+    margin-bottom: 24px;
+}
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px 14px; text-align: left; font-size: 13px; }
+th { color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; font-size: 11px; border-bottom: 1px solid rgba(99, 102, 241, 0.2); }
+td { border-bottom: 1px solid rgba(99, 102, 241, 0.08); color: #c9d1d9; }
+tr:hover td { background: rgba(99, 102, 241, 0.05); }
+@media (max-width: 1200px) { .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 768px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } .container { padding: 16px; } }
+</style>
+
+</head>
+<body>
+<div class="header">
+    <h1>Deep-Tech & Quantum Ecosystem</h1>
+    <nav class="nav"><a href="01_dashboard.html" class="active">Dashboard</a><a href="02_funding.html">Funding</a><a href="03_financials.html">Financials</a><a href="04_network.html">Network</a><a href="05_investors.html">Investors</a></nav>
+</div>
+
+<div class="container">
+    <p class="subtitle">Comprehensive overview of 132 deep-tech companies across quantum computing, photonics, and AI infrastructure</p>
+
+    <div class="grid grid-4" style="margin-bottom: 24px;">
+        <div class="card">
+            <h3>Companies</h3>
+            <div class="metric-value">132</div>
+            <div class="metric-label">75 active, 32 acquired</div>
+        </div>
+        <div class="card">
+            <h3>Investors</h3>
+            <div class="metric-value">52</div>
+            <div class="metric-label">53 active in deals</div>
+        </div>
+        <div class="card">
+            <h3>Funding Rounds</h3>
+            <div class="metric-value">275</div>
+            <div class="metric-label">685 investor participations</div>
+        </div>
+        <div class="card">
+            <h3>Total Funding</h3>
+            <div class="metric-value">$2,115M</div>
+            <div class="metric-label">Across all companies</div>
+        </div>
+    </div>
+
+    <div class="grid grid-2" style="margin-bottom: 24px;">
+        <div class="card">
+            <h3>Sector Landscape (Treemap)</h3>
+            <div id="treemap" class="chart-container"></div>
+        </div>
+        <div class="card">
+            <h3>Company Status Distribution</h3>
+            <div id="statusChart" class="chart-container"></div>
+        </div>
+    </div>
+
+    <div class="grid grid-2">
+        <div class="card">
+            <h3>Companies by Country (Top 15)</h3>
+            <div id="countryChart" class="chart-container"></div>
+        </div>
+        <div class="card">
+            <h3>Founded Year Distribution</h3>
+            <div id="foundedChart" class="chart-container"></div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script>
+const sectorColors = {"Quantum Computing": "#818cf8", "Quantum Software": "#c084fc", "Quantum Communication": "#f472b6", "Quantum Sensing": "#fb923c", "Photonics": "#34d399", "AI Infrastructure": "#38bdf8"};
+
+// Treemap
+(function() {
+    const chart = echarts.init(document.getElementById('treemap'));
+    chart.setOption({
+        tooltip: { formatter: function(p) { return p.name + ': ' + p.value + ' companies'; } },
+        series: [{
+            type: 'treemap',
+            data: [{"name": "Photonics", "value": 27, "children": [{"name": "Integrated photonics", "value": 12}, {"name": "Lasers", "value": 9}, {"name": "Detectors", "value": 6}]}, {"name": "Quantum Software", "value": 25, "children": [{"name": "Cloud orchestration", "value": 9}, {"name": "Error correction", "value": 5}, {"name": "Quantum ML", "value": 4}, {"name": "Compilers & SDK", "value": 4}, {"name": "Simulation / chemistry", "value": 3}]}, {"name": "Quantum Computing", "value": 23, "children": [{"name": "Cryogenics & control", "value": 6}, {"name": "Spin qubits", "value": 6}, {"name": "Superconducting hardware", "value": 5}, {"name": "Neutral atom", "value": 3}, {"name": "Trapped ion", "value": 2}, {"name": "Photonic", "value": 1}]}, {"name": "AI Infrastructure", "value": 21, "children": [{"name": "HPC integration", "value": 9}, {"name": "Accelerators", "value": 6}, {"name": "MLOps", "value": 6}]}, {"name": "Quantum Sensing", "value": 20, "children": [{"name": "Atomic clocks", "value": 6}, {"name": "Medical imaging", "value": 6}, {"name": "Gravimetry", "value": 6}, {"name": "Magnetometry", "value": 2}]}, {"name": "Quantum Communication", "value": 16, "children": [{"name": "Quantum networking", "value": 6}, {"name": "QKD", "value": 5}, {"name": "Post-quantum crypto", "value": 5}]}],
+            roam: false,
+            nodeClick: false,
+            breadcrumb: { show: false },
+            label: { show: true, formatter: '{b}\n{c}', fontSize: 13, fontWeight: 600, color: '#fff' },
+            itemStyle: { borderColor: '#0a0e1a', borderWidth: 2, gapWidth: 2 },
+            levels: [{
+                itemStyle: { borderColor: '#0a0e1a', borderWidth: 3, gapWidth: 3 },
+                color: ['#818cf8','#c084fc','#f472b6','#fb923c','#34d399','#38bdf8'],
+            }, {
+                colorSaturation: [0.3, 0.7],
+                itemStyle: { borderColorSaturation: 0.5, gapWidth: 1, borderWidth: 1 }
+            }]
+        }]
+    });
+    window.addEventListener('resize', () => chart.resize());
+})();
+
+// Status Pie
+(function() {
+    const chart = echarts.init(document.getElementById('statusChart'));
+    const statusColors = { 'Active': '#34d399', 'Acquired': '#818cf8', 'Shut down': '#f87171', 'IPO': '#fbbf24' };
+    chart.setOption({
+        tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+        legend: { bottom: 10, textStyle: { color: '#94a3b8', fontSize: 12 } },
+        series: [{
+            type: 'pie',
+            radius: ['40%', '70%'],
+            center: ['50%', '45%'],
+            avoidLabelOverlap: true,
+            itemStyle: { borderRadius: 6, borderColor: '#0a0e1a', borderWidth: 3 },
+            label: { show: true, formatter: '{b}\n{d}%', color: '#c9d1d9', fontSize: 13 },
+            data: [{"name": "Acquired", "value": 32}, {"name": "Active", "value": 75}, {"name": "Shut down", "value": 13}, {"name": "IPO", "value": 12}].map(d => ({ ...d, itemStyle: { color: statusColors[d.name] || '#64748b' } }))
+        }]
+    });
+    window.addEventListener('resize', () => chart.resize());
+})();
+
+// Country Bar
+(function() {
+    const chart = echarts.init(document.getElementById('countryChart'));
+    const data = [{"name": "United Arab Emirates", "value": 12}, {"name": "Spain", "value": 10}, {"name": "United States", "value": 10}, {"name": "Germany", "value": 9}, {"name": "India", "value": 9}, {"name": "Australia", "value": 9}, {"name": "Finland", "value": 8}, {"name": "Netherlands", "value": 8}, {"name": "South Korea", "value": 7}, {"name": "Japan", "value": 7}, {"name": "China", "value": 7}, {"name": "Switzerland", "value": 6}, {"name": "Israel", "value": 6}, {"name": "Canada", "value": 6}, {"name": "France", "value": 5}];
+    chart.setOption({
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        grid: { left: 150, right: 30, top: 10, bottom: 30 },
+        xAxis: { type: 'value', axisLabel: { color: '#64748b' }, splitLine: { lineStyle: { color: 'rgba(99,102,241,0.1)' } } },
+        yAxis: { type: 'category', data: data.map(d => d.name).reverse(), axisLabel: { color: '#c9d1d9', fontSize: 12 }, axisLine: { lineStyle: { color: 'rgba(99,102,241,0.2)' } } },
+        series: [{ type: 'bar', data: data.map(d => d.value).reverse(), itemStyle: { color: new echarts.graphic.LinearGradient(0,0,1,0, [{offset:0,color:'#818cf8'},{offset:1,color:'#c084fc'}]), borderRadius: [0,4,4,0] }, barWidth: 18 }]
+    });
+    window.addEventListener('resize', () => chart.resize());
+})();
+
+// Founded Year
+(function() {
+    const chart = echarts.init(document.getElementById('foundedChart'));
+    const data = [[2006, 1], [2007, 2], [2008, 3], [2009, 1], [2010, 2], [2011, 3], [2012, 6], [2013, 8], [2014, 10], [2015, 5], [2016, 6], [2017, 12], [2018, 15], [2019, 17], [2020, 12], [2021, 12], [2022, 9], [2023, 1], [2024, 3]];
+    chart.setOption({
+        tooltip: { trigger: 'axis' },
+        grid: { left: 50, right: 30, top: 20, bottom: 40 },
+        xAxis: { type: 'category', data: data.map(d => d[0]), axisLabel: { color: '#64748b' }, axisLine: { lineStyle: { color: 'rgba(99,102,241,0.2)' } } },
+        yAxis: { type: 'value', axisLabel: { color: '#64748b' }, splitLine: { lineStyle: { color: 'rgba(99,102,241,0.1)' } } },
+        series: [{ type: 'bar', data: data.map(d => d[1]), itemStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1, [{offset:0,color:'#c084fc'},{offset:1,color:'#818cf8'}]), borderRadius: [4,4,0,0] }, barWidth: 24 }]
+    });
+    window.addEventListener('resize', () => chart.resize());
+})();
+</script>
+
+</body>
+</html>

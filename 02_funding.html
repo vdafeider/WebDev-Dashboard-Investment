@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Funding Analysis | Deep-Tech Ecosystem</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: #0a0e1a;
+    color: #e0e6ed;
+    line-height: 1.6;
+}
+.header {
+    background: linear-gradient(135deg, #0f1729 0%, #1a1f3a 100%);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #818cf8, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+}
+.nav { display: flex; gap: 8px; }
+.nav a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+.nav a:hover, .nav a.active {
+    color: #c084fc;
+    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(99, 102, 241, 0.3);
+}
+.container { padding: 32px 40px; max-width: 1600px; margin: 0 auto; }
+.grid { display: grid; gap: 24px; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.card {
+    background: linear-gradient(135deg, #111827 0%, #0f172a 100%);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    border-radius: 12px;
+    padding: 28px;
+    overflow: visible;
+    transition: border-color 0.3s;
+}
+.card:hover { border-color: rgba(99, 102, 241, 0.4); }
+.card h3 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #64748b;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+.metric-value {
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #818cf8, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.metric-label { font-size: 13px; color: #64748b; margin-top: 4px; }
+.chart-container { width: 100%; height: 420px; }
+.chart-lg { height: 520px; }
+.chart-xl { height: 620px; }
+.subtitle {
+    font-size: 14px;
+    color: #94a3b8;
+    margin-bottom: 24px;
+}
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px 14px; text-align: left; font-size: 13px; }
+th { color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; font-size: 11px; border-bottom: 1px solid rgba(99, 102, 241, 0.2); }
+td { border-bottom: 1px solid rgba(99, 102, 241, 0.08); color: #c9d1d9; }
+tr:hover td { background: rgba(99, 102, 241, 0.05); }
+@media (max-width: 1200px) { .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 768px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } .container { padding: 16px; } }
+</style>
+
+</head>
+<body>
+<div class="header">
+    <h1>Deep-Tech & Quantum Ecosystem</h1>
+    <nav class="nav"><a href="01_dashboard.html">Dashboard</a><a href="02_funding.html" class="active">Funding</a><a href="03_financials.html">Financials</a><a href="04_network.html">Network</a><a href="05_investors.html">Investors</a></nav>
+</div>
+
+<div class="container">
+    <p class="subtitle">Funding landscape: $2,111M across 275 rounds</p>
+
+    <div class="grid grid-2" style="margin-bottom: 24px;">
+        <div class="card">
+            <h3>Funding by Year & Stage (Stacked)</h3>
+            <div id="stackedBar" class="chart-container"></div>
+        </div>
+        <div class="card">
+            <h3>Round Size Distribution</h3>
+            <div id="roundSize" class="chart-container"></div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 24px;">
+        <h3>Capital Flow: Investor Type &rarr; Sector (Sankey)</h3>
+        <div id="sankey" class="chart-lg"></div>
+    </div>
+
+    <div class="card">
+        <h3>Post-Money Valuation by Stage</h3>
+        <div id="valuation" class="chart-container"></div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script>
+// Stacked Bar
+(function() {
+    const chart = echarts.init(document.getElementById('stackedBar'));
+    chart.setOption({
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: v => '$' + v.toFixed(1) + 'M' },
+        legend: { bottom: 0, textStyle: { color: '#94a3b8', fontSize: 11 } },
+        grid: { left: 60, right: 20, top: 40, bottom: 55 },
+        xAxis: { type: 'category', data: [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026], axisLabel: { color: '#64748b' }, axisLine: { lineStyle: { color: 'rgba(99,102,241,0.2)' } } },
+        yAxis: { type: 'value', name: '$ Million', nameTextStyle: { color: '#94a3b8', padding: [0, 0, 10, 0] }, axisLabel: { color: '#64748b' }, splitLine: { lineStyle: { color: 'rgba(99,102,241,0.1)' } } },
+        series: [{"name": "Pre-Seed", "type": "bar", "stack": "total", "data": [2.9, 8.6, 6.6, 10.7, 18.8, 8.1, 11.2, 13.6, 32.5, 15.1, 11.2, 17.6, 1.8, 0], "itemStyle": {"color": "#818cf8"}, "barWidth": 32}, {"name": "Seed", "type": "bar", "stack": "total", "data": [0, 7.9, 8.3, 25.2, 13.5, 30.4, 32.2, 27.4, 26.2, 60.0, 58.4, 29.2, 16.6, 15.7], "itemStyle": {"color": "#c084fc"}, "barWidth": 32}, {"name": "Grant", "type": "bar", "stack": "total", "data": [0, 0, 17.1, 22.9, 1.9, 0, 17.3, 8.5, 46.2, 40.7, 23.1, 15.9, 5.2, 19.9], "itemStyle": {"color": "#94a3b8"}, "barWidth": 32}, {"name": "Series A", "type": "bar", "stack": "total", "data": [0, 0, 0, 61.1, 16.0, 56.6, 41.2, 47.3, 38.4, 27.8, 91.6, 78.2, 139.9, 77.1], "itemStyle": {"color": "#34d399"}, "barWidth": 32}, {"name": "Series B", "type": "bar", "stack": "total", "data": [0, 0, 0, 0, 0, 157.2, 0, 56.0, 84.8, 55.1, 0, 61.6, 67.1, 0], "itemStyle": {"color": "#38bdf8"}, "barWidth": 32}, {"name": "Series C", "type": "bar", "stack": "total", "data": [0, 0, 0, 0, 0, 0, 96.1, 0, 0, 0, 82.1, 0, 0, 46.9], "itemStyle": {"color": "#fbbf24"}, "barWidth": 32}]
+    });
+    window.addEventListener('resize', () => chart.resize());
+})();
+
+// Round Size
+(function() {
+    const chart = echarts.init(document.getElementById('roundSize'));
+    const data = [["<$1M", 46], ["$1-5M", 123], ["$5-15M", 73], ["$15-50M", 26], [">$50M", 7]];
+    chart.setOption({
+        tooltip: { trigger: 'item', formatter: '{b}: {c} rounds ({d}%)' },
+        legend: { show: false },
+        series: [{
+            type: 'pie',
+            radius: ['35%', '65%'],
+            center: ['50%', '50%'],
+            roseType: 'radius',
+            itemStyle: { borderRadius: 6, borderColor: '#0a0e1a', borderWidth: 3 },
+            label: { formatter: '{b}\n{c} rounds', color: '#c9d1d9', fontSize: 12 },
+            data: data.map((d, i) => ({ name: d[0], value: d[1], itemStyle: { color: ['#818cf8','#c084fc','#34d399','#38bdf8','#fbbf24'][i] } }))
+        }]
+    });
+    window.addEventListener('resize', () => chart.resize());
+})();
+
+// Sankey
+(function() {
+    const chart = echarts.init(document.getElementById('sankey'));
+    chart.setOption({
+        tooltip: { trigger: 'item', formatter: function(p) { if(p.dataType==='edge') return p.data.source+' &rarr; '+p.data.target+': $'+p.data.value+'M'; return p.name; } },
+        series: [{
+            type: 'sankey',
+            layout: 'none',
+            emphasis: { focus: 'adjacency' },
+            nodeAlign: 'left',
+            nodeWidth: 20,
+            nodeGap: 12,
+            layoutIterations: 64,
+            label: { color: '#c9d1d9', fontSize: 12, fontWeight: 600 },
+            lineStyle: { color: 'gradient', opacity: 0.3, curveness: 0.5 },
+            data: [{"name": "University Fund", "itemStyle": {"color": "#67e8f9"}}, {"name": "Family Office", "itemStyle": {"color": "#a78bfa"}}, {"name": "Photonics", "itemStyle": {"color": "#34d399"}}, {"name": "Sovereign Wealth Fund", "itemStyle": {"color": "#d4d4d8"}}, {"name": "Quantum Communication", "itemStyle": {"color": "#f472b6"}}, {"name": "Corporate VC", "itemStyle": {"color": "#fca5a5"}}, {"name": "Private Equity", "itemStyle": {"color": "#fbbf24"}}, {"name": "Angel", "itemStyle": {"color": "#fb923c"}}, {"name": "AI Infrastructure", "itemStyle": {"color": "#38bdf8"}}, {"name": "Quantum Computing", "itemStyle": {"color": "#818cf8"}}, {"name": "Venture Capital", "itemStyle": {"color": "#f472b6"}}, {"name": "Accelerator", "itemStyle": {"color": "#86efac"}}, {"name": "Quantum Software", "itemStyle": {"color": "#c084fc"}}, {"name": "Quantum Sensing", "itemStyle": {"color": "#fb923c"}}, {"name": "Government Grant Program", "itemStyle": {"color": "#94a3b8"}}],
+            links: [{"source": "Family Office", "target": "Quantum Software", "value": 93.1}, {"source": "Angel", "target": "Quantum Software", "value": 47.0}, {"source": "Venture Capital", "target": "Quantum Software", "value": 56.0}, {"source": "Accelerator", "target": "Quantum Software", "value": 19.2}, {"source": "Accelerator", "target": "Photonics", "value": 12.0}, {"source": "Government Grant Program", "target": "Photonics", "value": 68.9}, {"source": "Venture Capital", "target": "Photonics", "value": 112.2}, {"source": "Family Office", "target": "Photonics", "value": 229.9}, {"source": "Angel", "target": "Photonics", "value": 29.4}, {"source": "Venture Capital", "target": "AI Infrastructure", "value": 50.8}, {"source": "Angel", "target": "AI Infrastructure", "value": 42.1}, {"source": "Family Office", "target": "AI Infrastructure", "value": 218.2}, {"source": "Venture Capital", "target": "Quantum Communication", "value": 67.6}, {"source": "Angel", "target": "Quantum Communication", "value": 16.3}, {"source": "Family Office", "target": "Quantum Communication", "value": 47.4}, {"source": "Accelerator", "target": "Quantum Communication", "value": 7.4}, {"source": "Corporate VC", "target": "Quantum Communication", "value": 4.3}, {"source": "Private Equity", "target": "Quantum Communication", "value": 4.7}, {"source": "Government Grant Program", "target": "Quantum Communication", "value": 12.7}, {"source": "Corporate VC", "target": "Quantum Computing", "value": 22.7}, {"source": "Venture Capital", "target": "Quantum Computing", "value": 74.9}, {"source": "University Fund", "target": "Quantum Computing", "value": 30.8}, {"source": "Angel", "target": "Quantum Computing", "value": 75.7}, {"source": "Private Equity", "target": "Quantum Computing", "value": 5.9}, {"source": "Family Office", "target": "Quantum Computing", "value": 94.9}, {"source": "Government Grant Program", "target": "Quantum Computing", "value": 47.3}, {"source": "Government Grant Program", "target": "Quantum Software", "value": 11.7}, {"source": "Family Office", "target": "Quantum Sensing", "value": 207.1}, {"source": "Venture Capital", "target": "Quantum Sensing", "value": 75.4}, {"source": "Angel", "target": "Quantum Sensing", "value": 76.5}, {"source": "University Fund", "target": "Quantum Communication", "value": 23.5}, {"source": "Sovereign Wealth Fund", "target": "Quantum Computing", "value": 34.0}, {"source": "University Fund", "target": "Quantum Sensing", "value": 22.1}, {"source": "Corporate VC", "target": "Quantum Sensing", "value": 15.0}, {"source": "University Fund", "target": "Quantum Software", "value": 14.5}, {"source": "Government Grant Program", "target": "AI Infrastructure", "value": 6.3}, {"source": "Private Equity", "target": "Photonics", "value": 4.2}, {"source": "Government Grant Program", "target": "Quantum Sensing", "value": 14.4}, {"source": "Accelerator", "target": "Quantum Computing", "value": 17.1}, {"source": "Private Equity", "target": "Quantum Sensing", "value": 19.7}, {"source": "Private Equity", "target": "Quantum Software", "value": 1.4}, {"source": "Sovereign Wealth Fund", "target": "Quantum Software", "value": 5.9}, {"source": "Accelerator", "target": "AI Infrastructure", "value": 16.8}, {"source": "Sovereign Wealth Fund", "target": "Photonics", "value": 4.2}, {"source": "University Fund", "target": "Photonics", "value": 3.6}, {"source": "Private Equity", "target": "AI Infrastructure", "value": 11.7}, {"source": "Accelerator", "target": "Quantum Sensing", "value": 21.7}, {"source": "Corporate VC", "target": "Photonics", "value": 9.7}, {"source": "Sovereign Wealth Fund", "target": "AI Infrastructure", "value": 1.1}]
+        }]
+    });
+    window.addEventListener('resize', () => chart.resize());
+})();
+
+// Valuation boxplot-like scatter
+(function() {
+    const chart = echarts.init(document.getElementById('valuation'));
+    const boxData = [{"stage": "Pre-Seed", "min": 2.1, "q1": 4.5, "median": 6.6, "q3": 10.7, "max": 38.0}, {"stage": "Seed", "min": 4.1, "q1": 18.2, "median": 24.9, "q3": 36.4, "max": 67.6}, {"stage": "Grant", "min": 7.2, "q1": 23.3, "median": 38.3, "q3": 48.8, "max": 69.7}, {"stage": "Series A", "min": 31.2, "q1": 78.2, "median": 123.0, "q3": 169.2, "max": 208.7}, {"stage": "Series B", "min": 78.8, "q1": 163.9, "median": 191.0, "q3": 265.4, "max": 831.1}];
+    const stages = boxData.map(d => d.stage);
+    // Use custom rendering: candlestick-style
+    chart.setOption({
+        tooltip: { trigger: 'axis', formatter: function(p) {
+            const d = boxData[p[0].dataIndex];
+            return d.stage + '<br>Min: $' + d.min + 'M<br>Q1: $' + d.q1 + 'M<br>Median: $' + d.median + 'M<br>Q3: $' + d.q3 + 'M<br>Max: $' + d.max + 'M';
+        } },
+        grid: { left: 70, right: 40, top: 45, bottom: 40 },
+        xAxis: { type: 'category', data: stages, axisLabel: { color: '#c9d1d9', fontSize: 12 }, axisLine: { lineStyle: { color: 'rgba(99,102,241,0.2)' } } },
+        yAxis: { type: 'value', name: 'Valuation ($M)', nameTextStyle: { color: '#94a3b8', padding: [0, 0, 10, 0] }, axisLabel: { color: '#64748b' }, splitLine: { lineStyle: { color: 'rgba(99,102,241,0.1)' } } },
+        series: [
+            { name: 'Range', type: 'custom', renderItem: function(params, api) {
+                const idx = params.dataIndex;
+                const d = boxData[idx];
+                const x = api.coord([idx, 0])[0];
+                const q1Y = api.coord([0, d.q1])[1];
+                const q3Y = api.coord([0, d.q3])[1];
+                const medY = api.coord([0, d.median])[1];
+                const minY = api.coord([0, d.min])[1];
+                const maxY = api.coord([0, d.max])[1];
+                const w = 30;
+                return {
+                    type: 'group',
+                    children: [
+                        { type: 'line', shape: { x1: x, y1: minY, x2: x, y2: maxY }, style: { stroke: '#818cf8', lineWidth: 1 } },
+                        { type: 'rect', shape: { x: x-w/2, y: q3Y, width: w, height: q1Y-q3Y }, style: { fill: 'rgba(129,140,248,0.3)', stroke: '#818cf8', lineWidth: 2 } },
+                        { type: 'line', shape: { x1: x-w/2, y1: medY, x2: x+w/2, y2: medY }, style: { stroke: '#c084fc', lineWidth: 3 } },
+                        { type: 'line', shape: { x1: x-10, y1: minY, x2: x+10, y2: minY }, style: { stroke: '#818cf8', lineWidth: 1 } },
+                        { type: 'line', shape: { x1: x-10, y1: maxY, x2: x+10, y2: maxY }, style: { stroke: '#818cf8', lineWidth: 1 } },
+                    ]
+                };
+            }, data: boxData.map((d,i) => [i, d.q1, d.q3, d.min, d.max]),
+            encode: { x: 0, y: [1,2,3,4] } }
+        ]
+    });
+    window.addEventListener('resize', () => chart.resize());
+})();
+</script>
+
+</body>
+</html>
