@@ -96,6 +96,49 @@ td { border-bottom: 1px solid rgba(99, 102, 241, 0.08); color: #c9d1d9; }
 tr:hover td { background: rgba(99, 102, 241, 0.05); }
 @media (max-width: 1200px) { .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 768px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } .container { padding: 16px; } }
+
+/* ---------- Mobile / responsive ---------- */
+.grid > * { min-width: 0; }
+.nav a, .badge { white-space: nowrap; }
+@media (max-width: 900px) {
+    .header { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px 20px; }
+    .nav { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin: 0 -20px; padding: 0 20px 2px; }
+    .nav::-webkit-scrollbar { display: none; }
+}
+@media (max-width: 768px) {
+    .header { padding: 14px 16px; }
+    .header h1 { font-size: 18px; }
+    .nav { margin: 0 -16px; padding: 0 16px 2px; }
+    .nav a { padding: 8px 12px; font-size: 14px; }
+    .container { padding: 16px; }
+    .grid { gap: 12px; }
+    .grid-4 { grid-template-columns: 1fr 1fr; }
+    .container > [style*="margin-bottom"] { margin-bottom: 12px !important; }
+    .card { padding: 16px; }
+    .card h3 { font-size: 11px; margin-bottom: 10px; }
+    .metric-value { font-size: 26px; }
+    .metric-label { font-size: 12px; }
+    .subtitle { font-size: 13px; margin-bottom: 16px; }
+    .chart-container { height: 340px; }
+    .chart-lg { height: 440px; }
+    .chart-xl { height: 480px; }
+    #sankey { height: 560px; }
+    #heatmap { height: 520px; }
+    th, td { padding: 8px 10px; }
+}
+@media (max-width: 360px) { .grid-4 { grid-template-columns: 1fr; } }
+@media (max-width: 768px) {
+    /* Investor table becomes a stacked list: name on top, type + numbers below */
+    table thead { display: none; }
+    table tr { display: grid; grid-template-columns: 1fr auto auto; align-items: center; column-gap: 12px;
+               padding: 10px 2px; border-bottom: 1px solid rgba(99, 102, 241, 0.08); }
+    table td { border: 0; padding: 0; }
+    table td:first-child { grid-column: 1 / -1; margin-bottom: 4px; }
+    table td:nth-child(3)::after { content: " deals"; color: #64748b; }
+    table td:nth-child(2) { justify-self: start; min-width: 0; }
+    table td:nth-child(3), table td:nth-child(4) { white-space: nowrap; }
+    table td:nth-child(4) { font-weight: 600; }
+}
 </style>
 
 </head>
@@ -104,6 +147,13 @@ tr:hover td { background: rgba(99, 102, 241, 0.05); }
     <h1>Deep-Tech & Quantum Ecosystem</h1>
     <nav class="nav"><a href="index.html">Dashboard</a><a href="02_funding.html">Funding</a><a href="03_financials.html" class="active">Financials</a><a href="04_network.html">Network</a><a href="05_investors.html">Investors</a></nav>
 </div>
+<script>
+/* Keep the current page visible in the scrollable menu on phones */
+(function () {
+    var nav = document.querySelector('.nav'), a = nav && nav.querySelector('a.active');
+    if (a && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = a.offsetLeft - nav.offsetLeft - 16;
+})();
+</script>
 
 <div class="container">
     <p class="subtitle">Financial performance metrics across the ecosystem (all values normalized to USD)</p>
@@ -132,6 +182,132 @@ tr:hover td { background: rgba(99, 102, 241, 0.05); }
 
 
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script>
+/* Mobile tweaks: every ECharts chart adapts its layout on narrow screens */
+(function () {
+    var BREAK = 640;
+    function narrow() { return window.innerWidth < BREAK; }
+    function arr(v) { return v == null ? [] : (Array.isArray(v) ? v : [v]); }
+
+    // ECharts resets position keys that are missing from a merge, so carry them over
+    function pos(o) {
+        var out = {};
+        ['left', 'right', 'top', 'bottom', 'orient'].forEach(function (k) { if (o && o[k] != null) out[k] = o[k]; });
+        return out;
+    }
+
+    function mobilePatch(opt) {
+        var p = {};
+        var series = arr(opt.series);
+        var hasHeatmap = series.some(function (s) { return s.type === 'heatmap'; });
+        var legendBottom = opt.legend && opt.legend.show !== false && opt.legend.bottom != null;
+        var xHasName = arr(opt.xAxis).some(function (a) { return a.name; });
+
+        if (opt.tooltip) p.tooltip = { confine: true, textStyle: { fontSize: 11 } };
+
+        if (opt.grid) {
+            var bottom = hasHeatmap ? 60 : (legendBottom ? 44 : 8);
+            if (xHasName) bottom += 26;
+            p.grid = Object.assign(pos(opt.grid), { left: 4, right: 14, containLabel: true, bottom: bottom });
+        }
+
+        ['xAxis', 'yAxis'].forEach(function (k) {
+            if (!opt[k]) return;
+            p[k] = arr(opt[k]).map(function (ax) {
+                var o = { axisLabel: { fontSize: hasHeatmap ? 9 : 10, hideOverlap: !hasHeatmap } };
+                if (ax.type === 'category') {
+                    var labels = arr(ax.data).map(String);
+                    var longest = Math.max.apply(null, labels.map(function (s) { return s.length; }).concat(0));
+                    if (k === 'yAxis') {
+                        o.axisLabel.width = hasHeatmap ? 70 : 96;
+                        o.axisLabel.overflow = 'truncate';
+                    } else if (longest > 4 && labels.length > 4) {
+                        o.axisLabel.rotate = hasHeatmap ? 90 : 40;
+                        o.axisLabel.width = 70;
+                        o.axisLabel.overflow = 'truncate';
+                    }
+                    if (hasHeatmap) o.axisLabel.interval = 0;
+                }
+                if (ax.name) {
+                    if (k === 'yAxis') o.nameTextStyle = { align: 'left', fontSize: 10 };
+                    else { o.nameLocation = 'middle'; o.nameGap = 26; }
+                }
+                return o;
+            });
+        });
+
+        // Let the legend wrap onto extra lines and make room for them
+        var legendRows = 0;
+        if (legendBottom) {
+            var names = series.some(function (x) { return x.type === 'pie'; })
+                ? arr(series[0].data).map(function (d) { return d.name; })
+                : series.map(function (x) { return x.name; });
+            var avail = Math.min(window.innerWidth, BREAK) - 64, line = 0;
+            legendRows = 1;
+            names.forEach(function (n) {
+                var w = String(n).length * 6 + 26;
+                if (line + w > avail && line > 0) { legendRows++; line = 0; }
+                line += w;
+            });
+            p.legend = Object.assign(pos(opt.legend), { itemWidth: 12, itemHeight: 8, itemGap: 8,
+                textStyle: Object.assign({}, opt.legend.textStyle, { fontSize: 10 }) });
+            if (p.grid) p.grid.bottom = 12 + legendRows * 16 + (xHasName ? 26 : 0);
+        }
+
+        var groupedBars = series.filter(function (s) { return s.type === 'bar' && !s.stack; }).length;
+        p.series = series.map(function (s) {
+            var o = {};
+            if (s.type === 'bar' && typeof s.barWidth === 'number') {
+                o.barWidth = (s.stack || groupedBars < 2) ? '60%' : Math.floor(70 / groupedBars) + '%';
+                o.barMaxWidth = s.barWidth;
+            }
+            if (s.type === 'pie' && !(s.label && s.label.show === false)) {
+                o.label = { fontSize: 10 };
+                o.labelLine = { length: 6, length2: 6 };
+                o.radius = s.roseType ? ['20%', '58%'] : ['34%', '56%'];
+            }
+            if (s.type === 'pie' && legendRows > 1) {
+                o.center = ['50%', (46 - legendRows * 4) + '%'];
+                if (s.label && s.label.show === false) o.radius = ['30%', '56%'];
+            }
+            if (s.type === 'treemap') { o.label = { fontSize: 10 }; o.left = 0; o.right = 0; o.top = 0; o.bottom = 0; o.width = '100%'; o.height = '100%'; }
+            if (s.type === 'sankey') { o.label = { fontSize: 9 }; o.nodeGap = 8; o.nodeWidth = 12; o.left = 4; o.right = 112; }
+            if (s.type === 'heatmap') o.label = { show: false };
+            return o;
+        });
+
+        if (opt.visualMap) p.visualMap = Object.assign(pos(opt.visualMap), { itemHeight: 120, itemWidth: 12 });
+        return p;
+    }
+
+    var origInit = echarts.init;
+    var entries = [];
+    echarts.init = function () {
+        var chart = origInit.apply(echarts, arguments);
+        var baseSet = chart.setOption.bind(chart);
+        var entry = { base: null, set: baseSet };
+        chart.setOption = function (opt, a, b) {
+            entry.base = opt;
+            baseSet(opt, a, b);
+            if (narrow()) baseSet(mobilePatch(opt));
+        };
+        entries.push(entry);
+        return chart;
+    };
+
+    var wasNarrow = narrow();
+    window.addEventListener('resize', function () {
+        var now = narrow();
+        if (now === wasNarrow) return;
+        wasNarrow = now;
+        entries.forEach(function (e) {
+            if (!e.base) return;
+            e.set(e.base, true);
+            if (now) e.set(mobilePatch(e.base));
+        });
+    });
+})();
+</script>
 <script>
 // Revenue by sector
 (function() {

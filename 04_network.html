@@ -96,6 +96,67 @@ td { border-bottom: 1px solid rgba(99, 102, 241, 0.08); color: #c9d1d9; }
 tr:hover td { background: rgba(99, 102, 241, 0.05); }
 @media (max-width: 1200px) { .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 768px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } .container { padding: 16px; } }
+
+/* ---------- Mobile / responsive ---------- */
+.grid > * { min-width: 0; }
+.nav a, .badge { white-space: nowrap; }
+@media (max-width: 900px) {
+    .header { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px 20px; }
+    .nav { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin: 0 -20px; padding: 0 20px 2px; }
+    .nav::-webkit-scrollbar { display: none; }
+}
+@media (max-width: 768px) {
+    .header { padding: 14px 16px; }
+    .header h1 { font-size: 18px; }
+    .nav { margin: 0 -16px; padding: 0 16px 2px; }
+    .nav a { padding: 8px 12px; font-size: 14px; }
+    .container { padding: 16px; }
+    .grid { gap: 12px; }
+    .grid-4 { grid-template-columns: 1fr 1fr; }
+    .container > [style*="margin-bottom"] { margin-bottom: 12px !important; }
+    .card { padding: 16px; }
+    .card h3 { font-size: 11px; margin-bottom: 10px; }
+    .metric-value { font-size: 26px; }
+    .metric-label { font-size: 12px; }
+    .subtitle { font-size: 13px; margin-bottom: 16px; }
+    .chart-container { height: 340px; }
+    .chart-lg { height: 440px; }
+    .chart-xl { height: 480px; }
+    #sankey { height: 560px; }
+    #heatmap { height: 520px; }
+    th, td { padding: 8px 10px; }
+}
+@media (max-width: 360px) { .grid-4 { grid-template-columns: 1fr; } }
+@media (max-width: 768px) {
+    /* Investor table becomes a stacked list: name on top, type + numbers below */
+    table thead { display: none; }
+    table tr { display: grid; grid-template-columns: 1fr auto auto; align-items: center; column-gap: 12px;
+               padding: 10px 2px; border-bottom: 1px solid rgba(99, 102, 241, 0.08); }
+    table td { border: 0; padding: 0; }
+    table td:first-child { grid-column: 1 / -1; margin-bottom: 4px; }
+    table td:nth-child(3)::after { content: " deals"; color: #64748b; }
+    table td:nth-child(2) { justify-self: start; min-width: 0; }
+    table td:nth-child(3), table td:nth-child(4) { white-space: nowrap; }
+    table td:nth-child(4) { font-weight: 600; }
+}
+.net-toggle { display: none; }
+@media (max-width: 768px) {
+    .net-layout { flex-direction: column; height: auto !important; overflow: visible !important; }
+    #sidebar { width: 100% !important; min-width: 0 !important; border-right: 0 !important;
+               border-bottom: 1px solid rgba(99,102,241,0.15); padding: 14px 16px !important; overflow: visible !important; }
+    #sidebar .net-filters { display: none; }
+    #sidebar.open .net-filters { display: block; }
+    #sidebar label { padding: 5px 0; font-size: 14px; }
+    #searchBox { font-size: 16px !important; padding: 10px 12px !important; }
+    #sidebar > div:first-child { margin-bottom: 10px !important; }
+    .net-toggle { display: block; width: 100%; padding: 10px 12px; background: rgba(99,102,241,0.12);
+                  border: 1px solid rgba(99,102,241,0.3); border-radius: 6px; color: #c084fc;
+                  font: 600 14px 'Inter', system-ui, sans-serif; cursor: pointer; }
+    #sidebar.open .net-toggle { margin-bottom: 16px; }
+    #network { flex: none !important; height: 480px; height: 70svh; min-height: 360px; }
+    .net-layout > #detailPanel { margin: 12px 16px 20px !important; }
+    #detailConnections { font-size: 12px !important; }
+}
 </style>
 
 </head>
@@ -104,8 +165,15 @@ tr:hover td { background: rgba(99, 102, 241, 0.05); }
     <h1>Deep-Tech & Quantum Ecosystem</h1>
     <nav class="nav"><a href="index.html">Dashboard</a><a href="02_funding.html">Funding</a><a href="03_financials.html">Financials</a><a href="04_network.html" class="active">Network</a><a href="05_investors.html">Investors</a></nav>
 </div>
+<script>
+/* Keep the current page visible in the scrollable menu on phones */
+(function () {
+    var nav = document.querySelector('.nav'), a = nav && nav.querySelector('a.active');
+    if (a && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = a.offsetLeft - nav.offsetLeft - 16;
+})();
+</script>
 
-<div style="display:flex; height:calc(100vh - 73px); overflow:hidden;">
+<div class="net-layout" style="display:flex; height:calc(100vh - 73px); overflow:hidden;">
     <!-- Sidebar -->
     <div id="sidebar" style="width:280px; min-width:280px; background:#111827; border-right:1px solid rgba(99,102,241,0.15); padding:20px; overflow-y:auto; font-size:12px;">
         <div style="margin-bottom:18px;">
@@ -113,14 +181,15 @@ tr:hover td { background: rgba(99, 102, 241, 0.05); }
             <input id="searchBox" type="text" placeholder="Type company or investor name..."
                 style="width:100%; padding:8px 12px; background:#1e293b; border:1px solid rgba(99,102,241,0.3); border-radius:6px; color:#e0e6ed; font-size:12px; outline:none;">
         </div>
-        <div style="margin-bottom:18px;">
+        <button id="filterToggle" class="net-toggle" type="button" aria-expanded="false">Show filters</button>
+        <div class="net-filters" style="margin-bottom:18px;">
             <div style="color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:1px; font-size:10px; margin-bottom:8px;">Filter by Type</div>
             <label style="display:block; margin-bottom:4px; cursor:pointer; color:#c9d1d9;">
                 <input type="checkbox" class="filter-type" value="company" checked style="margin-right:6px; accent-color:#818cf8;">Companies</label>
             <label style="display:block; margin-bottom:4px; cursor:pointer; color:#c9d1d9;">
                 <input type="checkbox" class="filter-type" value="investor" checked style="margin-right:6px; accent-color:#f472b6;">Investors</label>
         </div>
-        <div style="margin-bottom:18px;">
+        <div class="net-filters" style="margin-bottom:18px;">
             <div style="color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:1px; font-size:10px; margin-bottom:8px;">Filter by Sector</div>
             <label style="display:block; margin-bottom:3px; cursor:pointer; color:#c9d1d9;">
                 <input type="checkbox" class="filter-sector" value="Quantum Computing" checked style="margin-right:6px; accent-color:#818cf8;">Quantum Computing</label><label style="display:block; margin-bottom:3px; cursor:pointer; color:#c9d1d9;">
@@ -130,7 +199,7 @@ tr:hover td { background: rgba(99, 102, 241, 0.05); }
                 <input type="checkbox" class="filter-sector" value="Photonics" checked style="margin-right:6px; accent-color:#34d399;">Photonics</label><label style="display:block; margin-bottom:3px; cursor:pointer; color:#c9d1d9;">
                 <input type="checkbox" class="filter-sector" value="AI Infrastructure" checked style="margin-right:6px; accent-color:#38bdf8;">AI Infrastructure</label>
         </div>
-        <div style="margin-bottom:18px;">
+        <div class="net-filters" style="margin-bottom:18px;">
             <div style="color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:1px; font-size:10px; margin-bottom:8px;">Edge Types</div>
             <label style="display:block; margin-bottom:3px; cursor:pointer; color:#c9d1d9;">
                 <input type="checkbox" class="filter-edge" value="funding" checked style="margin-right:6px; accent-color:#6b7280;">Funding</label>
@@ -143,7 +212,7 @@ tr:hover td { background: rgba(99, 102, 241, 0.05); }
             <label style="display:block; margin-bottom:3px; cursor:pointer; color:#c9d1d9;">
                 <input type="checkbox" class="filter-edge" value="licensing" checked style="margin-right:6px; accent-color:#a78bfa;">Licensing</label>
         </div>
-        <div style="margin-bottom:18px;">
+        <div class="net-filters" style="margin-bottom:18px;">
             <div style="color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:1px; font-size:10px; margin-bottom:8px;">Display</div>
             <label style="display:block; margin-bottom:4px; cursor:pointer; color:#c9d1d9;">
                 <input type="checkbox" id="showLabels" style="margin-right:6px; accent-color:#818cf8;">Show all labels</label>
@@ -160,11 +229,11 @@ tr:hover td { background: rgba(99, 102, 241, 0.05); }
             <button id="detailClear" style="margin-top:10px; padding:4px 12px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); border-radius:4px; color:#818cf8; font-size:11px; cursor:pointer;">Clear selection</button>
         </div>
 
-        <div style="margin-top:18px; padding:12px; background:rgba(99,102,241,0.08); border-radius:8px; color:#94a3b8; font-size:11px; line-height:1.5;">
+        <div class="net-filters net-help" style="margin-top:18px; padding:12px; background:rgba(99,102,241,0.08); border-radius:8px; color:#94a3b8; font-size:11px; line-height:1.5;">
             <b style="color:#c9d1d9;">How to use:</b><br>
-            Click a node to select and highlight connections.<br>
+            Click or tap a node to highlight its connections.<br>
             Drag nodes to rearrange.<br>
-            Scroll to zoom. Click background to deselect.
+            Scroll or pinch to zoom. Click background to deselect.
         </div>
     </div>
 
@@ -282,7 +351,7 @@ function clearSelection() {
     document.getElementById('detailPanel').style.display = 'none';
 }
 
-function selectNode(d) {
+var selectNode = function (d) {
     selectedNode = d;
     const neighbors = adjacency.get(d.id) || new Set();
 
@@ -316,7 +385,7 @@ function selectNode(d) {
         connHtml += '<div style="margin-bottom:2px;"><span style="color:' + color + ';">[' + l.type + ']</span> ' + other.name + '</div>';
     });
     document.getElementById('detailConnections').innerHTML = connHtml;
-}
+};
 
 // Click node to select
 nodeSel.on('click', function(event, d) {
@@ -430,6 +499,7 @@ document.getElementById('searchBox').addEventListener('keydown', function(e) {
 
 // Resize
 window.addEventListener('resize', () => {
+    if (container.clientWidth === width && container.clientHeight === height) return;
     width = container.clientWidth; height = container.clientHeight;
     svg.attr('width', width).attr('height', height);
     simulation.force('center', d3.forceCenter(width / 2, height / 2));
@@ -437,6 +507,43 @@ window.addEventListener('resize', () => {
     simulation.force('y', d3.forceY(height / 2).strength(0.03));
     simulation.alpha(0.3).restart();
 });
+
+// ── Mobile layout ──
+(function () {
+    const mq = window.matchMedia('(max-width: 768px)');
+    const sidebar = document.getElementById('sidebar');
+    const toggle = document.getElementById('filterToggle');
+    const panel = document.getElementById('detailPanel');
+    const help = sidebar.querySelector('.net-help');
+    const layout = document.querySelector('.net-layout');
+
+    toggle.addEventListener('click', () => {
+        const open = sidebar.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open);
+        toggle.textContent = open ? 'Hide filters' : 'Show filters';
+    });
+
+    // On phones the selected-node details sit under the graph, where you're looking
+    function placePanel() {
+        if (mq.matches) layout.appendChild(panel);
+        else sidebar.insertBefore(panel, help);
+    }
+    placePanel();
+    mq.addEventListener('change', placePanel);
+
+    const origSelect = selectNode;
+    selectNode = function (d) {
+        origSelect(d);
+        if (mq.matches) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+
+    // Start zoomed out so the whole network fits a small screen
+    if (mq.matches) {
+        const k = 0.4;
+        svg.call(zoomBehavior.transform,
+            d3.zoomIdentity.translate(width / 2 * (1 - k), height / 2 * (1 - k)).scale(k));
+    }
+})();
 </script>
 
 </body>
